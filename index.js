@@ -23,6 +23,35 @@ async function run(){
 try{
     await client.connect();
    const taskCollection = client.db('google-task').collection('task');
+
+   app.get('/task' , async(req, res) => {
+    const query = {};
+    const cursor = taskCollection.find(query);
+    const item = await cursor.toArray();
+    res.send(item);
+});
+
+app.get('/task/:id' , async(req, res) => {
+    const id = req.params.id;
+    const query = {_id: ObjectId(id)};
+    const item = await taskCollection.findOne(query);
+    res.send(item);
+});
+
+    //POST
+    app.post('/task', async(req, res) => {
+      const newItem = req.body;
+      const result = await taskCollection.insertOne(newItem);
+      res.send(result)
+  });
+
+  //DELETE
+  app.delete('/task/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: ObjectId(id)};
+      const result = await taskCollection.deleteOne(query);
+      res.send(result);
+  })
 }
 
 finally{

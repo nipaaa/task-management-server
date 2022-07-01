@@ -40,9 +40,10 @@ app.get('/task/:id' , async(req, res) => {
 
     //POST
     app.post('/task', async(req, res) => {
-      const newItem = req.body;
-      const result = await taskCollection.insertOne(newItem);
-      res.send(result)
+      const task = req.body;
+      const addedItem = task;
+      const result = await taskCollection.insertOne(addedItem);
+      res.send(result);
   });
 
   //DELETE

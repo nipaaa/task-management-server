@@ -18,46 +18,60 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
-async function run(){
+async function run() {
 
-try{
+  try {
     await client.connect();
-   const taskCollection = client.db('google-task').collection('task');
+    const taskCollection = client.db('google-task').collection('task');
 
-   app.get('/task' , async(req, res) => {
-    const query = {};
-    const cursor = taskCollection.find(query);
-    const item = await cursor.toArray();
-    res.send(item);
-});
+    app.get('/task', async (req, res) => {
+      const query = {};
+      const cursor = taskCollection.find(query);
+      const item = await cursor.toArray();
+      res.send(item);
+    });
 
-app.get('/task/:id' , async(req, res) => {
-    const id = req.params.id;
-    const query = {_id: ObjectId(id)};
-    const item = await taskCollection.findOne(query);
-    res.send(item);
-});
+    app.get('/task/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const item = await taskCollection.findOne(query);
+      res.send(item);
+    });
 
     //POST
-    app.post('/task', async(req, res) => {
+    app.post('/task', async (req, res) => {
       const task = req.body;
       const addedItem = task;
       const result = await taskCollection.insertOne(addedItem);
       res.send(result);
-  });
+    });
 
-  //DELETE
-  app.delete('/task/:id', async(req, res) => {
+    // update task
+    app.put('/task/:_id', async (req, res) => {
+      const id = req.params._id;
+      const updatedTask = req.body;
+      const filter = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updatedDoc = {
+        $set: updatedTask
+      };
+      const result = await taskCollection.updateOne(filter, updatedDoc, option);
+      res.send(result)
+    });
+
+
+    //DELETE
+    app.delete('/task/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: ObjectId(id)};
+      const query = { _id: ObjectId(id) };
       const result = await taskCollection.deleteOne(query);
       res.send(result);
-  })
-}
+    })
+  }
 
-finally{
+  finally {
 
-}
+  }
 }
 run().catch(console.dir);
 
